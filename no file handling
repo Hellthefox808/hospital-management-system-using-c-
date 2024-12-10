@@ -1,0 +1,167 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Patient class
+class Patient {
+public:
+    int id;
+    string name;
+    int age;
+    string disease;
+
+    Patient(int id, string name, int age, string disease) 
+        : id(id), name(name), age(age), disease(disease) {}
+};
+
+// Doctor class
+class Doctor {
+public:
+    int id;
+    string name;
+    string specialization;
+
+    Doctor(int id, string name, string specialization) 
+        : id(id), name(name), specialization(specialization) {}
+};
+
+// Appointment class
+class Appointment {
+public:
+    int appointmentID;
+    int patientID;
+    int doctorID;
+    string date;
+
+    Appointment(int appointmentID, int patientID, int doctorID, string date)
+        : appointmentID(appointmentID), patientID(patientID), doctorID(doctorID), date(date) {}
+};
+
+// Hospital Management System class
+class HospitalManagementSystem {
+private:
+    vector<Patient> patients;
+    vector<Doctor> doctors;
+    vector<Appointment> appointments;
+    int patientCount = 0;
+    int doctorCount = 0;
+    int appointmentCount = 0;
+
+public:
+    void addPatient(string name, int age, string disease) {
+        patientCount++;
+        Patient newPatient(patientCount, name, age, disease);
+        patients.push_back(newPatient);
+        cout << "Patient added successfully!\n";
+    }
+
+    void addDoctor(string name, string specialization) {
+        doctorCount++;
+        Doctor newDoctor(doctorCount, name, specialization);
+        doctors.push_back(newDoctor);
+        cout << "Doctor added successfully!\n";
+    }
+
+    void scheduleAppointment(int patientID, int doctorID, string date) {
+        appointmentCount++;
+        Appointment newAppointment(appointmentCount, patientID, doctorID, date);
+        appointments.push_back(newAppointment);
+        cout << "Appointment scheduled successfully!\n";
+    }
+
+    void viewPatients() {
+        cout << "List of Patients:\n";
+        for (auto &patient : patients) {
+            cout << "ID: " << patient.id << ", Name: " << patient.name << ", Age: " << patient.age 
+                 << ", Disease: " << patient.disease << "\n";
+        }
+    }
+
+    void viewDoctors() {
+        cout << "List of Doctors:\n";
+        for (auto &doctor : doctors) {
+            cout << "ID: " << doctor.id << ", Name: " << doctor.name 
+                 << ", Specialization: " << doctor.specialization << "\n";
+        }
+    }
+
+    void viewAppointments() {
+        cout << "List of Appointments:\n";
+        for (auto &appointment : appointments) {
+            cout << "Appointment ID: " << appointment.appointmentID << ", Patient ID: " 
+                 << appointment.patientID << ", Doctor ID: " << appointment.doctorID 
+                 << ", Date: " << appointment.date << "\n";
+        }
+    }
+};
+
+// Main function
+int main() {
+    HospitalManagementSystem hms;
+    int choice;
+    do {
+        cout << "\nHospital Management System\n";
+        cout << "1. Add Patient\n";
+        cout << "2. Add Doctor\n";
+        cout << "3. Schedule Appointment\n";
+        cout << "4. View Patients\n";
+        cout << "5. View Doctors\n";
+        cout << "6. View Appointments\n";
+        cout << "0. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                string name, disease;
+                int age;
+                cout << "Enter Patient Name: ";
+                cin >> name;
+                cout << "Enter Age: ";
+                cin >> age;
+                cout << "Enter Disease: ";
+                cin >> disease;
+                hms.addPatient(name, age, disease);
+                break;
+            }
+            case 2: {
+                string name, specialization;
+                cout << "Enter Doctor Name: ";
+                cin >> name;
+                cout << "Enter Specialization: ";
+                cin >> specialization;
+                hms.addDoctor(name, specialization);
+                break;
+            }
+            case 3: {
+                int patientID, doctorID;
+                string date;
+                cout << "Enter Patient ID: ";
+                cin >> patientID;
+                cout << "Enter Doctor ID: ";
+                cin >> doctorID;
+                cout << "Enter Appointment Date (YYYY-MM-DD): ";
+                cin >> date;
+                hms.scheduleAppointment(patientID, doctorID, date);
+                break;
+            }
+            case 4:
+                hms.viewPatients();
+                break;
+            case 5:
+                hms.viewDoctors();
+                break;
+            case 6:
+                hms.viewAppointments();
+                break;
+            case 0:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice, please try again.\n";
+        }
+    } while (choice != 0);
+
+    return 0;
+}
