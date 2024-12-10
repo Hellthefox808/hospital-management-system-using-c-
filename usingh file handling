@@ -1,0 +1,176 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+// Patient class to represent a patient with attributes and methods
+class Patient
+{
+    string patientID, name, disease; // Private data members for patient details
+    int age;                         // Private data member for patient age
+    float bill;                      // Private data member for patient bill
+
+public:
+    // Method to add a new patient's details
+    void addPatient()
+    {
+        cout << "Enter Patient ID: ";
+        cin >> patientID;
+        cin.ignore(); // Ignore newline left in buffer
+        cout << "Enter Name: ";
+        getline(cin, name);
+        cout << "Enter Age: ";
+        cin >> age;
+        cin.ignore();
+        cout << "Enter Disease: ";
+        getline(cin, disease);
+        cout << "Enter Bill Amount (Rs): ";
+        cin >> bill;
+        saveToFile(); // Save the entered details to a file
+        cout << "Patient added successfully!\n";
+    }
+
+    // Method to display the details of a patient
+    void displayPatient()
+    {
+        cout << "Patient ID: " << patientID
+             << "\nName: " << name
+             << "\nAge: " << age
+             << "\nDisease: " << disease
+             << "\nBill: Rs" << bill << "\n";
+    }
+
+    // Method to update patient details
+    void updateBill(float amount)
+    {
+        bill += amount; // Add the new amount to the existing bill
+        cout << "Bill updated successfully. Total Bill: Rs" << bill << "\n";
+        updateFile(); // Save updated bill to file
+    }
+
+    // Method to save patient details to a file in a formatted manner
+    void saveToFile()
+    {
+        ofstream file("patients.txt", ios::app); // Append to "patients.txt"
+        file << patientID << "|" << name << "|" << age << "|" << disease << "|" << bill << "\n";
+        file.close(); // Close file after writing
+    }
+
+    // Method to update the file when patient details are modified
+    void updateFile()
+    {
+        ifstream file("patients.txt");    // Open the original file for reading
+        ofstream tempFile("temp.txt"); // Temporary file for updated data
+        string line;
+
+        // Read each line from the original file
+        while (getline(file, line))
+        {
+            size_t pos = line.find('|');
+            string currentID = line.substr(0, pos);
+
+            if (currentID == patientID)
+            {
+                // Write updated patient details to the temporary file
+                tempFile << patientID << "|" << name << "|" << age << "|" << disease << "|" << bill << "\n";
+            }
+            else
+            {
+                // Copy the original data if patientID does not match
+                tempFile << line << "\n";
+            }
+        }
+
+        file.close();
+        tempFile.close();
+
+        // Replace the original file with the updated file
+        remove("patients.txt");
+        rename("temp.txt", "patients.txt");
+    }
+
+    // Method to load patient details from the file based on patient ID
+    bool loadFromFile(const string &id)
+    {
+        ifstream file("patients.txt"); // Open "patients.txt" for reading
+        string line;
+
+        // Read each line in the file
+        while (getline(file, line))
+        {
+            size_t pos1 = line.find('|');           // Position of first delimiter
+            size_t pos2 = line.find('|', pos1 + 1); // Position of second delimiter
+            size_t pos3 = line.find('|', pos2 + 1); // Position of third delimiter
+            size_t pos4 = line.find('|', pos3 + 1); // Position of fourth delimiter
+
+            // Check if patient ID matches
+            if (line.substr(0, pos1) == id)
+            {
+                patientID = id;
+                name = line.substr(pos1 + 1, pos2 - pos1 - 1);
+                age = stoi(line.substr(pos2 + 1, pos3 - pos2 - 1)); // Convert string to int for age
+                disease = line.substr(pos3 + 1, pos4 - pos3 - 1);
+                bill = stof(line.substr(pos4 + 1));                 // Convert string to float for bill
+                file.close();                                       // Close file after loading patient details
+                return true;
+            }
+        }
+
+        file.close(); // Close file if patient not found
+        return false;
+    }
+};
+
+// Main function for user interaction
+int main()
+{
+    Patient patient;
+    int choice;
+    string id;
+    float amount;
+
+    do
+    {
+        // Display menu
+        cout << "\n1. Add Patient\n2. View Patient\n3. Update Bill\n4. Exit\nChoose: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            patient.addPatient(); // Add a new patient
+            break;
+
+        case 2:
+            cout << "Enter Patient ID: ";
+            cin >> id;
+            if (patient.loadFromFile(id))
+                patient.displayPatient(); // Display details of patient if found
+            else
+                cout << "Patient not found!\n";
+            break;
+
+        case 3:
+            cout << "Enter Patient ID: ";
+            cin >> id;
+            if (patient.loadFromFile(id))
+            { // Check if patient exists
+                cout << "Enter Amount to Update Bill: ";
+                cin >> amount;
+                patient.updateBill(amount); // Update the patient's bill
+            }
+            else
+                cout << "Patient not found!\n";
+            break;
+
+        case 4:
+            cout << "Goodbye!\n"; // Exit message
+            break;
+
+        default:
+            cout << "Invalid choice!\n"; // Invalid input message
+        }
+    } while (choice != 4); // Loop until exit choice is selected
+
+    return 0;
+}
